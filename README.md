@@ -25,7 +25,7 @@ This use
  - no coffeescript or typescript
 
 
-Up to date node version can just use this as is. (tested in 6.5.0)<br>
+Up to date node version can just use this as is. (tested in v6.5.0)<br>
 Browsers should run this through closer-compiler, babel, Babili, browserify, webpack or equivalent.<br>
 Browsers need to include a polyfill for WeakMap if necessary.<br>
 
