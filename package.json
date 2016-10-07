@@ -1,0 +1,26 @@
+{
+  "name": "fetch-headers",
+  "version": "1.0.0",
+  "description": "fetch Headers polyfill",
+  "main": "headers.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^3.1.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://jimmywarting@github.com/jimmywarting/fetch-headers.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jimmywarting/fetch-headers/issues"
+  },
+  "homepage": "https://github.com/jimmywarting/fetch-headers#readme"
+}
