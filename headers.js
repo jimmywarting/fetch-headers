@@ -176,13 +176,13 @@ class Headers {
 
 
   /**
-   * Create the default string description. 
+   * Create the default string description.
    * It is accessed internally by the Object.prototype.toString().
-   * 
+   *
    * @return  String  [Object Headers]
    */
   get [Symbol.toStringTag]() {
-    return "Headers"
+    return 'Headers'
   }
 }
 

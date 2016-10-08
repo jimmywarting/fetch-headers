@@ -168,4 +168,10 @@ describe('Headers', () => {
     assert.deepEqual({done: true, value: undefined}, iterator.next())
   })
 
+  it('has a header description', () => {
+    var headers = new Headers()
+    var type = Object.prototype.toString.call(headers)
+    assert.equal(type, '[object Headers]')
+  })
+
 })
