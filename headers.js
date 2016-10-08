@@ -1,7 +1,7 @@
 'use strict'
 
 const map = new WeakMap
-const wm = object => map.get(object)
+const wm = o => map.get(o)
 const normalizeValue = v => typeof v === 'string' ? v : String(v)
 const isIterable = o => o != null && typeof o[Symbol.iterator] === 'function'
 
@@ -159,7 +159,7 @@ class Headers {
    * @return  Iterator
    */
   *values() {
-    for (let [names, value] of this)
+    for (let [name, value] of this)
       yield value
   }
 
@@ -174,6 +174,16 @@ class Headers {
     return this.entries()
   }
 
+
+  /**
+   * Create the default string description. 
+   * It is accessed internally by the Object.prototype.toString().
+   * 
+   * @return  String  [Object Headers]
+   */
+  get [Symbol.toStringTag]() {
+    return "Headers";
+  }
 }
 
 module.exports = Headers
