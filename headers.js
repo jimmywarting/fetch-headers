@@ -182,7 +182,7 @@ class Headers {
    * @return  String  [Object Headers]
    */
   get [Symbol.toStringTag]() {
-    return "Headers";
+    return "Headers"
   }
 }
 
