@@ -1,8 +1,14 @@
 {
   "name": "fetch-headers",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "fetch Headers polyfill",
   "main": "headers.js",
+  "keywords": [
+    "w3c",
+    "header",
+    "headers",
+    "fetch"
+  ],
   "directories": {
     "test": "test"
   },
