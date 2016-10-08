@@ -89,7 +89,7 @@ class Headers {
    * @return  Void
    */
   forEach(callback, thisArg) {
-    for (let [name, value] of this.entries())
+    for (let [name, value] of this)
       callback.call(thisArg, value, name, this)
   }
 
