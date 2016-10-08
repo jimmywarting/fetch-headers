@@ -19,7 +19,7 @@ Notes
 -----
 This use
  - [WeakMap][1] for private properties
- - [Symbol.iterator][2] for iteration
+ - [Symbol.iterator][2] and Generators* for iteration
  - vanilla ecmascript 6
  - no transpiler
  - no coffeescript or typescript
