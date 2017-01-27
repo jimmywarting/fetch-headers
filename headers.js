@@ -76,21 +76,7 @@ class Headers {
     let map = wm(this)
 
     for (let name in map)
-      for (let value of map[name])
-        yield [name, value]
-  }
-
-
-  /**
-   * Iterate over all headers
-   *
-   * @param   Function  callback  Executed for each item with parameters (value, name, thisArg)
-   * @param   Boolean   thisArg   `this` context for callback function
-   * @return  Void
-   */
-  forEach(callback, thisArg) {
-    for (let [name, value] of this)
-      callback.call(thisArg, value, name, this)
+      yield [name, map[name].join(',')]
   }
 
 
@@ -105,17 +91,6 @@ class Headers {
     name = normalizeName(name)
 
     return map[name] ? map[name][0] : null
-  }
-
-
-  /**
-   * Return all header values given name
-   *
-   * @param   String  name  Header name
-   * @return  Array
-   */
-  getAll(name) {
-    return (wm(this)[normalizeName(name)] || []).concat()
   }
 
 
