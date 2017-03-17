@@ -27,7 +27,7 @@ This use
 
 Up to date node version can just use this as is. (tested in v6.5.0)<br>
 Browsers should run this through closer-compiler, babel, Babili, browserify, webpack or equivalent.<br>
-Browsers need to include a polyfill for WeakMap if necessary.<br>
+Browsers need to include a polyfill for WeakMap and Object.keys if necessary.<br>
 
 Optional for those who want es5 version and don't have the time or effort to compile can use the prebuilt version
 ```javascript
