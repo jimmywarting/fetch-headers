@@ -33,6 +33,7 @@ Optional for those who want es5 version and don't have the time or effort to com
 ```javascript
 var Headers = require('fetch-headers/headers-es5.min.js')
 ```
+(It has been transpiled with closure compiler)
 
   [1]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/WeakMap
   [2]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator
