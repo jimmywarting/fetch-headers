@@ -31,7 +31,7 @@ class Headers {
         this.append(name, value)
 
     else if ( headers )
-      for (let name of Object.getOwnPropertyNames(headers))
+      for (let name of Object.keys(headers))
         this.append(name, headers[name])
   }
 
