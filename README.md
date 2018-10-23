@@ -10,7 +10,7 @@ iterator, entries, keys, values, and support of for...of
 const Headers = require('fetch-headers')
 
 header = new Headers([
-  ['accept', 'application/json']
+  ['accept', 'application/json'],
   ['accept', 'text/plain']
 ])
 ```
