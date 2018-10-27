@@ -81,19 +81,6 @@ class Headers {
 
 
   /**
-   * Iterate over all headers
-   *
-   * @param   Function  callback  Executed for each item with parameters (value, name, thisArg)
-   * @param   Object    thisArg   `this` context for callback function
-   * @return  Void
-   */
-  forEach(callback, thisArg) {
-    for (let [name, value] of this)
-      callback.call(thisArg, value, name, this)
-  }
-
-
-  /**
    * Return first header value given name
    *
    * @param   String  name  Header name

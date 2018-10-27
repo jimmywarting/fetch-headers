@@ -95,30 +95,6 @@ describe('Headers', () => {
     }, TypeError)
   })
 
-  it('is iterable with forEach', () => {
-    var headers = new Headers()
-    headers.append('Accept', 'application/json')
-    headers.append('Accept', 'text/plain')
-    headers.append('Content-Type', 'text/html')
-
-    var results = []
-    headers.forEach(function(value, key, object) {
-      results.push({value: value, key: key, object: object})
-    })
-
-    assert.equal(results.length, 2)
-    assert.deepEqual({key: 'accept', value: 'application/json, text/plain', object: headers}, results[0])
-    assert.deepEqual({key: 'content-type', value: 'text/html', object: headers}, results[1])
-  })
-
-  it('forEach accepts second thisArg argument', () => {
-    var headers = new Headers({'Accept': 'application/json'})
-    var thisArg = 42
-    headers.forEach(function() {
-      assert.equal(this, thisArg)
-    }, thisArg)
-  })
-
   it('is iterable with keys', () => {
     var headers = new Headers()
     headers.append('Accept', 'application/json')
