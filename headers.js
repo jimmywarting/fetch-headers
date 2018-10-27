@@ -76,7 +76,7 @@ class Headers {
     let map = wm(this)
 
     for (let name in map)
-      yield [name, map[name].join(',')]
+      yield [name, map[name].join(', ')]
   }
 
 
@@ -90,7 +90,7 @@ class Headers {
     let map = wm(this)
     name = normalizeName(name)
 
-    return map[name] ? map[name][0] : null
+    return map[name] ? map[name].join(', ') : null
   }
 
 
