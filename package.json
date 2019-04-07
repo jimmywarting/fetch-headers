@@ -14,7 +14,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "mocha": "^3.1.0"
+    "mocha": "^6.1.0"
   },
   "scripts": {
     "test": "mocha"
