@@ -1,6 +1,6 @@
 # fetch-headers
 
-The `Headers` class for NodeJS
+The `Headers` class for NodeJS<br>
 Executed against wpt test suits so it follows the spec correctly.
 
 ## Install
