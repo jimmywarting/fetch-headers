@@ -1,32 +1,47 @@
 {
   "name": "fetch-headers",
-  "version": "2.0.0",
-  "description": "fetch Headers polyfill",
+  "version": "3.0.0",
+  "description": "fetch Headers",
   "main": "headers.js",
-  "keywords": [
-    "w3c",
-    "header",
-    "headers",
-    "fetch"
-  ],
-  "directories": {
-    "test": "test"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "mocha": "^3.1.0"
-  },
+  "type": "module",
   "scripts": {
-    "test": "mocha"
+    "test": "node --no-warnings --experimental-loader ./test/http-loader.js ./test/wpt_test.js",
+    "test:deno": "deno test test --allow-net --allow-read --coverage=x && deno coverage x && rm -rf x"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://jimmywarting@github.com/jimmywarting/fetch-headers.git"
+    "url": "git+https://github.com/jimmywarting/fetch-headers.git"
   },
-  "author": "",
+  "exports": {
+    ".": "./headers.js"
+  },
+  "types": "./headers.d.ts",
+  "keywords": [
+    "Headers",
+    "fetch",
+    "spec",
+    "whatwg"
+  ],
+  "author": "Jimmy Wärting <jimmy@warting.se> (https://jimmy.warting.se/opensource)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/jimmywarting/fetch-headers/issues"
   },
-  "homepage": "https://github.com/jimmywarting/fetch-headers#readme"
+  "engines": {
+    "node": ">=12.20"
+  },
+  "homepage": "https://github.com/jimmywarting/fetch-headers#readme",
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/jimmywarting"
+    },
+    {
+      "type": "github",
+      "url": "https://paypal.me/jimmywarting"
+    }
+  ],
+  "devDependencies": {
+    "node-fetch": "^3.1.0"
+  }
 }

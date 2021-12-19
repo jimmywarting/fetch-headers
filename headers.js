@@ -1,164 +1,247 @@
-'use strict'
+/*! fetch-headers. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
 
-const map = new WeakMap
-const wm = o => map.get(o)
-const normalizeValue = v => typeof v === 'string' ? v : String(v)
-const isIterable = o => o != null && typeof o[Symbol.iterator] === 'function'
-
-function normalizeName(name) {
-  if (typeof name !== 'string')
-    name = String(name)
-
-  if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name))
-    throw new TypeError('Invalid character in header field name')
-
-  return name.toLowerCase()
+/** @param {Headers} instance */
+function assert (instance, argsCount = 0, requiredArgs = 0, method = '') {
+  if (!(instance instanceof Headers)) {
+    throw new TypeError('Illegal invocation')
+  }
+  if (argsCount < requiredArgs) {
+    throw new TypeError(`"Failed to execute '${method}' on 'Headers'" requires at least ${requiredArgs} argument, but only ${argsCount} were provided.`)
+  }
+  return /** @type {Bag} */ (wm.get(instance))
 }
 
-class Headers {
+/**
+ * @typedef Bag
+ * @property {Object<string, string>} items
+ * @property {Array<string>} cookies
+ * @property {string} guard
+ */
 
-  /**
-   * Headers class
-   *
-   * @param   Object  headers  Response headers
-   * @return  Void
-   */
-  constructor(headers) {
-    map.set(this, Object.create(null))
+/**
+ * @param {Bag} bag
+ * @param {HeadersInit} object
+ */
+function fillHeaders (bag, object) {
+  if (object === null) throw new TypeError("HeadersInit can't be null.")
 
-    if ( isIterable(headers) )
-      for (let [name, value] of headers)
-        this.append(name, value)
+  const iterable = object[Symbol.iterator]
 
-    else if ( headers )
-      for (let name of Object.keys(headers))
-        this.append(name, headers[name])
+  if (iterable) {
+    // @ts-ignore
+    for (const header of object) {
+      if (header.length !== 2) {
+        throw new TypeError(`Invalid header. Length must be 2, but is ${header.length}`)
+      }
+      appendHeader(bag, header[0], header[1])
+    }
+  } else {
+    for (const key of Reflect.ownKeys(object)) {
+      const x = Reflect.getOwnPropertyDescriptor(object, key)
+      if (x === undefined || !x.enumerable) continue
+
+      if (typeof key === 'symbol') {
+        throw new TypeError('Invalid header. Symbol key is not supported.')
+      }
+
+      if (!HTTP_TOKEN_CODE_POINT_RE.test(key)) {
+        throw new TypeError('Header name is not valid.')
+      }
+
+      appendHeader(bag, key, Reflect.get(object, key))
+    }
+  }
+}
+
+const ILLEGAL_VALUE_CHARS = /[\x00\x0A\x0D]/g
+const IS_BYTE_STRING = /^[\x00-\xFF]*$/
+const HTTP_TOKEN_CODE_POINT_RE = /^[\u0021\u0023\u0024\u0025\u0026\u0027\u002a\u002b\u002d\u002e\u005e\u005f\u0060\u007c\u007e\u0030-\u0039\u0041-\u005a\u0061-\u007a]+$/
+const HTTP_BETWEEN_WHITESPACE = /^[\u000a\u000d\u0009\u0020]*(.*?)[\u000a\u000d\u0009\u0020]*$/
+
+/** @param {string} char */
+function isHttpWhitespace (char) {
+  switch (char) {
+    case '\u0009':
+    case '\u000A':
+    case '\u000D':
+    case '\u0020':
+      return true
   }
 
+  return false
+}
 
-  /**
-   * Append a value onto existing header
-   *
-   * @param   String  name   Header name
-   * @param   String  value  Header value
-   * @return  Void
-   */
-  append(name, value) {
-    let map = wm(this)
+/** @param {string} s */
+function httpTrim (s) {
+  if (!isHttpWhitespace(s[0]) && !isHttpWhitespace(s[s.length - 1])) {
+    return s
+  }
 
+  const match = HTTP_BETWEEN_WHITESPACE.exec(s)
+  return match && match[1]
+}
+
+/**
+ * https://fetch.spec.whatwg.org/#concept-headers-append
+ * @param {Bag} bag
+ * @param {string} name
+ * @param {string} value
+ */
+function appendHeader (bag, name, value) {
+  value = httpTrim(`${value}`) || ''
+
+  if (!HTTP_TOKEN_CODE_POINT_RE.test(name)) {
+    throw new TypeError('Header name is not valid.')
+  }
+
+  if (ILLEGAL_VALUE_CHARS.test(value) || !IS_BYTE_STRING.test(value)) {
+    throw new TypeError(`Header value ${JSON.stringify(value)} is not valid.`)
+  }
+
+  if (bag.guard === 'immutable') {
+    throw new TypeError('Headers are immutable.')
+  }
+
+  name = String(name).toLocaleLowerCase()
+
+  bag.items[name] = name in bag.items ? `${bag.items[name]}, ${value}` : value
+
+  if (name === 'set-cookie') {
+    bag.cookies.push(value)
+  }
+}
+
+/** @param {string} name */
+function normalizeName (name) {
+  name = `${name}`.toLowerCase()
+  if (!HTTP_TOKEN_CODE_POINT_RE.test(name)) throw new TypeError('Header name is not valid.')
+  return name
+}
+
+/** @type {WeakMap<Headers, Bag>} */
+const wm = new WeakMap()
+
+export class Headers {
+  /** @param {HeadersInit} [init] */
+  constructor (init = undefined) {
+    const bag = {
+      items: Object.create(null),
+      cookies: [],
+      guard: 'mutable'
+    }
+
+    wm.set(this, bag)
+
+    if (init !== undefined) {
+      fillHeaders(bag, init)
+    }
+  }
+
+  append (name, value) {
+    const bag = assert(this, arguments.length, 2, 'append')
+    appendHeader(bag, name, value)
+  }
+
+  delete (name) {
+    const bag = assert(this, arguments.length, 1, 'delete')
     name = normalizeName(name)
-    value = normalizeValue(value)
-
-    if (!map[name])
-      map[name] = []
-
-    map[name].push(value)
+    delete bag.items[name]
+    if (name === 'set-cookie') bag.cookies.length = 0
   }
 
-
-  /**
-   * Delete all header values given name
-   *
-   * @param   String  name  Header name
-   * @return  Void
-   */
-  delete(name) {
-    delete wm(this)[normalizeName(name)]
-  }
-
-
-  /**
-   * Iterate over all headers as [name, value]
-   *
-   * @return  Iterator
-   */
-  *entries() {
-    let map = wm(this)
-
-    for (let name in map)
-      yield [name, map[name].join(',')]
-  }
-
-
-  /**
-   * Return first header value given name
-   *
-   * @param   String  name  Header name
-   * @return  Mixed
-   */
-  get(name) {
-    let map = wm(this)
+  get (name) {
+    const bag = assert(this, arguments.length, 1, 'get')
     name = normalizeName(name)
-
-    return map[name] ? map[name][0] : null
+    return name in bag.items ? bag.items[name] : null
   }
 
-
-  /**
-   * Check for header name existence
-   *
-   * @param   String   name  Header name
-   * @return  Boolean
-   */
-  has(name) {
-    return normalizeName(name) in wm(this)
+  has (name) {
+    const bag = assert(this, arguments.length, 1, 'has')
+    return normalizeName(name) in bag.items
   }
 
-
-  /**
-   * Iterate over all keys
-   *
-   * @return  Iterator
-   */
-  *keys() {
-    for (let [name] of this)
-      yield name
+  set (name, value) {
+    const bag = assert(this, arguments.length, 2, 'set')
+    this.delete(name)
+    appendHeader(bag, name, value)
   }
 
+  forEach (callback, thisArg = this) {
+    const bag = assert(this, arguments.length, 1, 'forEach')
+    if (typeof callback !== 'function') {
+      throw new TypeError(
+        "Failed to execute 'forEach' on 'Headers': parameter 1 is not of type 'Function'."
+      )
+    }
 
-  /**
-   * Overwrite header values given name
-   *
-   * @param   String  name   Header name
-   * @param   String  value  Header value
-   * @return  Void
-   */
-  set(name, value) {
-    wm(this)[normalizeName(name)] = [normalizeValue(value)]
+    for (const x of this) {
+      callback.call(thisArg, x[1], x[0], this)
+    }
   }
 
-
-  /**
-   * Iterate over all values
-   *
-   * @return  Iterator
-   */
-  *values() {
-    for (let [name, value] of this)
-      yield value
+  toString () {
+    return '[object Headers]'
   }
 
+  getSetCookie () {
+    const bag = assert(this, 0, 0, '')
+    return bag.cookies.slice(0)
+  }
 
-  /**
-   * The class itself is iterable
-   * alies for headers.entries()
-   *
-   * @return  Iterator
-   */
-  [Symbol.iterator]() {
+  keys () {
+    assert(this, 0, 0, '')
+    return [...this].map(x => x[0]).values()
+  }
+
+  values () {
+    assert(this, 0, 0, '')
+    return [...this].map(x => x[1]).values()
+  }
+
+  entries () {
+    const bag = assert(this, 0, 0, '')
+    /** @type {Array<[string, string]>} */
+    const result = []
+
+    const entries = [
+      ...Object.entries(bag.items).sort((a, b) => a[0] > b[0] ? 1 : -1)
+    ]
+
+    for (const [name, value] of entries) {
+      if (name === 'set-cookie') {
+        for (const cookie of bag.cookies) {
+          result.push([name, cookie])
+        }
+      } else result.push([name, value])
+    }
+
+    return result.values()
+  }
+
+  [Symbol.iterator] () {
     return this.entries()
   }
 
-
-  /**
-   * Create the default string description.
-   * It is accessed internally by the Object.prototype.toString().
-   *
-   * @return  String  [Object Headers]
-   */
-  get [Symbol.toStringTag]() {
-    return 'Headers'
+  [Symbol.for('nodejs.util.inspect.custom')] () {
+    const bag = assert(this, 0, 0, '')
+    class Headers extends URLSearchParams { }
+    return new Headers(bag.items)
   }
 }
 
-module.exports = Headers
+export let bag = wm
+
+const enumerable = { enumerable: true }
+
+Object.defineProperties(Headers.prototype, {
+  append: enumerable,
+  delete: enumerable,
+  entries: enumerable,
+  forEach: enumerable,
+  get: enumerable,
+  getSetCookie: enumerable,
+  has: enumerable,
+  keys: enumerable,
+  set: enumerable,
+  values: enumerable
+})
