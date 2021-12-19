@@ -229,7 +229,7 @@ export class Headers {
   }
 }
 
-export let bag = wm
+export const bag = wm
 
 const enumerable = { enumerable: true }
 
