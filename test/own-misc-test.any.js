@@ -34,27 +34,40 @@ test(() => {
   const headers = new Headers()
   bag.get(headers).guard = 'immutable'
   assert_throws_js(TypeError, () => headers.append('foo', 'bar'))
+  assert_throws_js(TypeError, () => headers.set('foo', 'bar'))
 }, 'it throws when guard is immutable')
 
 test(() => {
   const headers = new Headers([
-    ['a', 'baz'],
-    ['a', 'baz'],
-    ['a', 'bar']
+    ['a', '1'].values(),
+    new Set(['b', '2']),
   ])
-  bag.get(headers).guard = 'immutable'
-  assert_throws_js(TypeError, () => headers.append('foo', 'bar'))
-}, 'it throws when guard is immutable')
+  assert_equals(headers.get('a'), '1')
+  assert_equals(headers.get('b'), '2')
+}, 'it can convert iterables to sequence')
 
 test(() => {
-  const headers = new Headers([
-    ['a', 'baz'],
-    ['a', 'baz'],
-    ['a', 'bar']
-  ])
-  bag.get(headers).guard = 'immutable'
-  assert_throws_js(TypeError, () => headers.append('foo', 'bar'))
-}, 'it throws when guard is immutable')
+  // string is also iterable but not possible to converted to a sequence
+  assert_throws_js(TypeError, () => new Headers([ 'a1' ]))
+}, 'it cant convert string to sequence')
+
+test(() => {
+  new Headers({a: '1'}).forEach(function () {
+    assert_equals(this, globalThis)
+  })
+}, '`this` in foreach is global object')
+
+test(() => {
+  new Headers({a: '1'}).forEach(function () {
+    assert_equals(this, globalThis)
+  })
+}, '`this` in foreach is global object')
+
+test(() => {
+  new Headers({a: '1'}).forEach(function () {
+    assert_true(Array.isArray(this))
+  }, [])
+}, 'change thisArg in foreach')
 
 const headers = new Headers()
 headers[Symbol.for('nodejs.util.inspect.custom')]()
