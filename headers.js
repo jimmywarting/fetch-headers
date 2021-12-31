@@ -29,10 +29,19 @@ function fillHeaders (bag, object) {
 
   if (iterable) {
     // @ts-ignore
-    for (const header of object) {
+    for (let header of object) {
+      if (typeof header === 'string') {
+        throw new TypeError('The provided value cannot be converted to a sequence.')
+      }
+
+      if (header[Symbol.iterator] && !Array.isArray(header)) {
+        header = [...header]
+      }
+
       if (header.length !== 2) {
         throw new TypeError(`Invalid header. Length must be 2, but is ${header.length}`)
       }
+
       appendHeader(bag, header[0], header[1])
     }
   } else {
@@ -166,7 +175,7 @@ export class Headers {
     appendHeader(bag, name, value)
   }
 
-  forEach (callback, thisArg = this) {
+  forEach (callback, thisArg = globalThis) {
     const bag = assert(this, arguments.length, 1, 'forEach')
     if (typeof callback !== 'function') {
       throw new TypeError(

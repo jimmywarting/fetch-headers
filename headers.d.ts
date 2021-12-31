@@ -57,7 +57,7 @@ export class Headers {
             key: string,
             parent: Headers
         ) => void,
-        thisArg: Headers
+        thisArg: globalThis
     ): void
 
     toString(): string
